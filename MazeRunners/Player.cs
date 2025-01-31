@@ -35,13 +35,12 @@ public class Player
     /// <param name="name">Nombre del jugador.</param>
     public Player(string name)
     {
-        // Asigna el nombre del jugador al valor proporcionado en el parámetro 'name'
+        // Asigna el nombre del jugador 
         Name = name;
 
         // Inicializa la lista de fichas del jugador como una nueva lista vacía
         Fichas = new List<Ficha>();
     }
-
 
     /// <summary>
     /// Añade una ficha a la lista de fichas del jugador.
@@ -55,13 +54,7 @@ public class Player
             // Añade la ficha a la lista de fichas del jugador
             Fichas.Add(ficha);
         }
-        else
-        {
-            // Muestra un mensaje indicando que no se pueden añadir más fichas
-            Console.WriteLine("No puedes añadir más fichas.");
-        }
     }
-
 
     /// <summary>
     /// Mueve una ficha del jugador usando las letras A,S,D,W del teclado.
@@ -70,8 +63,8 @@ public class Player
     /// <param name="maze">El laberinto en el que se mueve la ficha.</param>
     /// <param name="mazeInstance">Instancia del laberinto para actualizar la visualización.</param>
     /// <param name="player1Fichas">Lista de fichas del Jugador 1.</param>
-    /// <param name="player2Fichas">Lista de fichas del Jugador 2.</param>
-    /// <param name="game">Instancia del juego para controlar el flujo del turno y la victoria.</param>
+    /// <param="player2Fichas">Lista de fichas del Jugador 2.</param>
+    /// <param="game">Instancia del juego para controlar el flujo del turno y la victoria.</param>
     /// <param name="dificultad">La dificultad del laberinto.</param>
     public void MoveFicha(int fichaIndex, int[,] maze, Maze mazeInstance, List<Ficha> player1Fichas, List<Ficha> player2Fichas, Game game, string dificultad)
     {
@@ -79,26 +72,18 @@ public class Player
         if (fichaIndex < 0 || fichaIndex >= Fichas.Count)
         {
             Console.WriteLine("Índice de ficha no válido. Inténtalo nuevamente.");
-            return;
+            return; // Salir del método si el índice no es válido
         }
 
         // Obtener la ficha a mover
         Ficha ficha = Fichas[fichaIndex];
 
-        // Mostrar mensaje de trampa si existe
-        if (!string.IsNullOrEmpty(ficha.TrampaMensaje))
-        {
-            Console.WriteLine(ficha.TrampaMensaje);
-            ficha.TrampaMensaje = string.Empty;
-        }
 
         // Verificar si la ficha está afectada por un efecto y no puede moverse
         if ((ficha.Duraciones.ContainsKey("Lullaby") && ficha.Duraciones["Lullaby"] > 0) ||
             (ficha.Duraciones.ContainsKey("Petrification") && ficha.Duraciones["Petrification"] > 0) ||
             (ficha.Duraciones.ContainsKey("Ventisca") && ficha.Duraciones["Ventisca"] > 0))
         {
-            Console.WriteLine($"La ficha {ficha.Name} está afectada por un efecto y no puede moverse en este turno. Selecciona otra ficha.");
-
             // Verificar si hay otras fichas disponibles sin efectos
             bool hayFichasSinEfectos = false;
             for (int i = 0; i < Fichas.Count; i++)
@@ -112,7 +97,7 @@ public class Player
             }
             if (hayFichasSinEfectos)
             {
-                return;
+                return; // Salir del método si hay fichas disponibles sin efectos
             }
 
             // Cambiar el turno si no hay fichas sin efectos
@@ -140,49 +125,48 @@ public class Player
             Console.WriteLine($"La habilidad {ficha.HabilidadPredefinida} de {ficha.Name} está en enfriamiento.");
         }
 
+        // Inicializar el estado de teletransportación
+        bool teletransportado = false;
+
         // Procesar el movimiento de la ficha usando las teclas del teclado
         while (movimientosRestantes > 0)
         {
-            ConsoleKey key = Console.ReadKey(true).Key;
-
+            ConsoleKey key = Console.ReadKey(true).Key; // Leer la tecla presionada por el usuario
             int deltaX = 0, deltaY = 0;
 
+            // Determinar la dirección del movimiento según la tecla presionada
             switch (key)
             {
-                case ConsoleKey.A:
+                case ConsoleKey.LeftArrow:
                     deltaX = -1;
                     break;
-                case ConsoleKey.D:
+                case ConsoleKey.RightArrow:
                     deltaX = 1;
                     break;
-                case ConsoleKey.W:
+                case ConsoleKey.UpArrow:
                     deltaY = -1;
                     break;
-                case ConsoleKey.S:
+                case ConsoleKey.DownArrow:
                     deltaY = 1;
                     break;
                 default:
                     Console.WriteLine("Tecla inválida. Inténtalo nuevamente.");
-                    continue;
+                    continue; // Continuar el bucle si la tecla es inválida
             }
 
+            // Verificar la nueva posición antes de mover la ficha
             int newX = ficha.X + deltaX;
             int newY = ficha.Y + deltaY;
 
-            // Verificar si la nueva posición es válida
-            if (newX >= 0 && newY >= 0 && newX < maze.GetLength(1) && newY < maze.GetLength(0) &&
-                (maze[newY, newX] == Maze.PATH || maze[newY, newX] == Maze.TRAP_SLOW || maze[newY, newX] == Maze.TRAP_CONFUSION || maze[newY, newX] == Maze.TRAP_TELEPORT))
+            // Comprobar si la nueva posición es válida
+            bool posicionValida = newX >= 0 && newY >= 0 && newX < maze.GetLength(1) && newY < maze.GetLength(0) &&
+                                  (maze[newY, newX] == Maze.PATH || maze[newY, newX] == Maze.TRAP_SLOW || maze[newY, newX] == Maze.TRAP_CONFUSION || maze[newY, newX] == Maze.TRAP_TELEPORT);
+            if(posicionValida)
             {
-                ficha.X = newX;
-                ficha.Y = newY;
-                movimientosRestantes--;
-                Console.WriteLine($"Movimientos restantes: {movimientosRestantes}");
-
-                // Verificar si la ficha ha llegado a la meta
+                // Verificar si la ficha ha llegado a la meta ANTES de moverla
                 if (newX == maze.GetLength(1) - 2 && newY == maze.GetLength(0) - 2)
                 {
                     Console.WriteLine("¡Ficha ha llegado a la meta!");
-
                     Fichas.RemoveAt(fichaIndex);
 
                     if (Fichas.Count == 0)
@@ -193,45 +177,31 @@ public class Player
                     break;
                 }
 
+                ficha.Move(deltaX, deltaY, maze, ref teletransportado, ref movimientosRestantes);
+
+                // Verificar si la ficha ha sido teletransportada
+                if (teletransportado)
+                {
+                    teletransportado = false;
+                    // Actualizar la visualización del laberinto
+                    AnsiConsole.Clear();
+                    mazeInstance.DisplayMaze(player1Fichas, player2Fichas, game.currentPlayerIndex, dificultad);
+                    continue; // Continuar el bucle para el próximo movimiento sin disminuir más movimientosRestantes
+                }
+
+                movimientosRestantes--; // Reducir movimientos restantes por movimiento regular
+                Console.WriteLine($"Movimientos restantes: {movimientosRestantes}");
+
+                // Actualizar la visualización del laberinto después de cada movimiento
                 AnsiConsole.Clear();
                 mazeInstance.DisplayMaze(player1Fichas, player2Fichas, game.currentPlayerIndex, dificultad);
                 Console.WriteLine($"Movimientos restantes para {ficha.Name}: {movimientosRestantes}");
-
-                // Aplicar los efectos de las trampas si la ficha no es ignorante
-                if (!(ficha.Duraciones.ContainsKey("Ignorante") && ficha.Duraciones["Ignorante"] > 0))
-                {
-                    if (maze[newY, newX] == Maze.TRAP_SLOW)
-                    {
-                        movimientosRestantes--;
-                        Console.WriteLine($"{ficha.Name} ha activado una trampa de ralentización. Movimientos restantes reducidos a {movimientosRestantes}.");
-                    }
-                    else if (maze[newY, newX] == Maze.TRAP_CONFUSION)
-                    {
-                        ficha.Duraciones["Petrification"] = 3;
-                        Console.WriteLine($"{ficha.Name} ha activado una trampa de petrificacion y no podrá moverse durante 3 turnos.");
-                        break;
-                    }
-                    else if (maze[newY, newX] == Maze.TRAP_TELEPORT)
-                    {
-                        int prevX = ficha.X;
-                        int prevY = ficha.Y;
-                        ficha.Teleport(maze);
-
-                        AnsiConsole.Clear();
-                        mazeInstance.DisplayMaze(player1Fichas, player2Fichas, game.currentPlayerIndex, dificultad);
-
-                        if (ficha.X != prevX || ficha.Y != prevY)
-                        {
-                            Console.WriteLine($"{ficha.Name} ha sido teletransportada a una nueva posición.");
-                            continue;
-                        }
-                    }
-                }
             }
             else
             {
                 Console.WriteLine("Posición inválida. Intenta nuevamente.");
                 Console.WriteLine($"Intentando mover a ({newX}, {newY})");
+                continue;
             }
         }
 
@@ -242,29 +212,27 @@ public class Player
         if (TurnoExtra)
         {
             TurnoExtra = false;
-            game.ContinueTurn(this, dificultad);
+            game.ContinueTurn(this, dificultad); // Continuar el turno si hay un turno extra
             return;
         }
 
         // Cambia el turno al siguiente jugador
         game.CambiarTurno(dificultad);
     }
+
     /// <summary>
     /// Actualiza los cooldowns de habilidades y las duraciones de efectos temporales para cada ficha del jugador.
     /// </summary>
     public void ActualizarCooldowns()
     {
-        // Itera sobre cada ficha en la lista de fichas del jugador
         for (int j = 0; j < Fichas.Count; j++)
         {
             Ficha ficha = Fichas[j];
 
             // Reducir el cooldown de las habilidades
             List<string> habilidades = new List<string>(ficha.Cooldowns.Keys);
-            for (int i = 0; i < habilidades.Count; i++)
+            foreach (var habilidad in habilidades)
             {
-                string habilidad = habilidades[i];
-
                 if (ficha.Cooldowns.ContainsKey(habilidad) && ficha.Cooldowns[habilidad] > 0)
                 {
                     ficha.Cooldowns[habilidad]--;
@@ -274,10 +242,8 @@ public class Player
 
             // Reducir las duraciones de los efectos temporales
             List<string> duraciones = new List<string>(ficha.Duraciones.Keys);
-            for (int i = 0; i < duraciones.Count; i++)
+            foreach (var duracion in duraciones)
             {
-                string duracion = duraciones[i];
-
                 if (ficha.Duraciones.ContainsKey(duracion) && ficha.Duraciones[duracion] > 0)
                 {
                     ficha.Duraciones[duracion]--;
@@ -286,7 +252,7 @@ public class Player
                 // Verificación y restauración de la velocidad al terminar el efecto Oversoul
                 if (duracion == "Oversoul" && ficha.Duraciones[duracion] == 0)
                 {
-                    ficha.Speed = ficha.InitialSpeed; // Restaurar la velocidad original usando InitialSpeed
+                    ficha.Speed = ficha.InitialSpeed;
                     Console.WriteLine($"Velocidad de {ficha.Name} restaurada a: {ficha.Speed}");
                     ficha.Duraciones.Remove(duracion);
                 }

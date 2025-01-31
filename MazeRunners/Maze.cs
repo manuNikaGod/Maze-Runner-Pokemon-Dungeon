@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.Collections.Generic;
 using Spectre.Console;
 using System.Text;
@@ -128,6 +128,7 @@ public class Maze
         BlockLastRowExceptExit(); // Bloquea la última fila excepto la salida
         PlaceRandomObstaclesAndTraps(10, (Height - 2, Width - 2)); // Asegura que las trampas no se coloquen en la casilla final
         MakeEdgesInaccessible(); // Hace inaccesibles los bordes del laberinto
+        AsegurarMetaDesbloqueada();//Hace q nunca una trampa de teletransportacion bloquee la salida
     }
 
     /// <summary>
@@ -369,6 +370,38 @@ public class Maze
         maze[y, x] = objectType;
     }
 
+    /// <summary>
+    /// Asegura que las trampas de teletransportación no bloqueen la casilla de la meta.
+    /// </summary>
+    public void AsegurarMetaDesbloqueada()
+    {
+        int exitX = Width - 2; // Coordenada X de la meta
+        int exitY = Height - 2; // Coordenada Y de la meta
+
+        // Verificar si la casilla de la meta está bloqueada por una trampa de teletransportación
+        if (maze[exitY, exitX] == TRAP_TELEPORT)
+        {
+            // Remover la trampa de teletransportación de la casilla de la meta
+            maze[exitY, exitX] = PATH;
+        }
+
+        // Verificar si hay un solo camino para llegar a la meta
+        int validPaths = 0; // Contador de caminos válidos
+        if (maze[exitY - 1, exitX] == PATH) validPaths++; // Camino desde arriba
+        if (maze[exitY + 1, exitX] == PATH) validPaths++; // Camino desde abajo
+        if (maze[exitY, exitX - 1] == PATH) validPaths++; // Camino desde la izquierda
+        if (maze[exitY, exitX + 1] == PATH) validPaths++; // Camino desde la derecha
+
+        // Si hay un solo camino hacia la meta, asegurar que las trampas no bloqueen las celdas adyacentes
+        if (validPaths == 1)
+        {
+            // Verificar las celdas adyacentes a la casilla de la meta
+            if (maze[exitY - 1, exitX] == TRAP_TELEPORT) maze[exitY - 1, exitX] = PATH; // Quitar trampa desde arriba
+            if (maze[exitY + 1, exitX] == TRAP_TELEPORT) maze[exitY + 1, exitX] = PATH; // Quitar trampa desde abajo
+            if (maze[exitY, exitX - 1] == TRAP_TELEPORT) maze[exitY, exitX - 1] = PATH; // Quitar trampa desde la izquierda
+            if (maze[exitY, exitX + 1] == TRAP_TELEPORT) maze[exitY, exitX + 1] = PATH; // Quitar trampa desde la derecha
+        }
+    }
 
 
     /// <summary>
@@ -522,7 +555,7 @@ public class Maze
         // Convertir el nombre del Pokémon a minúsculas para hacer la comparación
         switch (pokemonName.ToLower())
         {
-            case "mega beedrill":
+            case "beedrill":
                 return "🐝"; // Emoji para Mega Beedrill
             case "sandshrew":
                 return "🦔"; // Emoji para Sandshrew
@@ -571,7 +604,7 @@ public class Maze
         {
         { WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL },
         { WALL, PATH, PATH, PATH, PATH, TRAP_CONFUSION, PATH, WALL },
-        { WALL, TRAP_CONFUSION, PATH, TRAP_TELEPORT, WALL, PATH, TRAP_SLOW, WALL },
+        { WALL, PATH, PATH, TRAP_TELEPORT, WALL, PATH, TRAP_SLOW, WALL },
         { WALL, PATH, WALL, PATH, TRAP_SLOW, PATH, PATH, WALL },
         { WALL, PATH, TRAP_CONFUSION, PATH, WALL, TRAP_TELEPORT, PATH, WALL },
         { WALL, PATH, WALL, PATH, PATH, WALL, PATH, WALL },

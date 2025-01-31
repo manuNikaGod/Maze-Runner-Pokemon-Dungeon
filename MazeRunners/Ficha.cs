@@ -43,11 +43,6 @@ public class Ficha
     public int InitialSpeed { get; private set; }
 
     /// <summary>
-    /// Mensaje de trampa asociado a la ficha.
-    /// </summary>
-    public string TrampaMensaje { get; set; }
-
-    /// <summary>
     /// Diccionario de habilidades con su tiempo de enfriamiento.
     /// </summary>
     public Dictionary<string, int> Habilidades { get; set; } // Habilidad y su tiempo de enfriamiento
@@ -92,8 +87,6 @@ public class Ficha
         { habilidadPredefinida, 0 }
     };
 
-        // Inicializa el diccionario de Duraciones
-        Duraciones = new Dictionary<string, int>();
 
         // Inicializa el diccionario de Habilidades
         Habilidades = new Dictionary<string, int>
@@ -104,7 +97,7 @@ public class Ficha
         { "Sombra Trampa", 5 },
         { "Ignorante", 2 },
         { "Oversoul", 5 },
-        { "Don Aural", 7 },
+        { "Don Aural", 8 },
         { "Teletransporte", 1 }
     };
 
@@ -140,7 +133,7 @@ public class Ficha
     /// <param name="deltaY">Cambio en la coordenada Y.</param>
     /// <param name="maze">El laberinto en el que se mueve la ficha.</param>
     /// <param name="teletransportado">Referencia a un indicador de teletransportación.</param>
-    public void Move(int deltaX, int deltaY, int[,] maze, ref bool teletransportado)
+    public void Move(int deltaX, int deltaY, int[,] maze, ref bool teletransportado, ref int movimientosRestantes)
     {
         int newX = X + deltaX; // Calcula la nueva coordenada X
         int newY = Y + deltaY; // Calcula la nueva coordenada Y
@@ -154,14 +147,12 @@ public class Ficha
                 // Si la ficha ya fue teletransportada, no se teletransporta de nuevo
                 if (teletransportado && maze[newY, newX] == Maze.TRAP_TELEPORT)
                 {
-                    Console.WriteLine($"La ficha {Name} ya ha sido teletransportada y no se teletransportará nuevamente.");
                     return; // Terminar la función para evitar otra teletransportación
                 }
 
                 // Actualizar la posición de la ficha
                 X = newX;
                 Y = newY;
-                Console.WriteLine($"Ficha movida a ({X}, {Y}).");
 
                 // Efectos de las trampas
                 if (!(Duraciones.ContainsKey("Ignorante") && Duraciones["Ignorante"] > 0)) // Verificar si la habilidad "Ignorante" está activa
@@ -169,22 +160,18 @@ public class Ficha
                     switch (maze[Y, X])
                     {
                         case Maze.TRAP_SLOW:
-                            Console.WriteLine($"{Name} ha activado una trampa de ralentización. Movimientos restantes reducidos.");
+                            movimientosRestantes--; // Reducir un movimiento por ralentización
                             break;
 
                         case Maze.TRAP_CONFUSION:
-                            Duraciones["Petrification"] = 3; // La ficha no se podrá mover durante 2 turnos
-                            Console.WriteLine($"{Name} ha activado una trampa de petrificación. No podrá moverse durante 2 turnos.");
+                            Duraciones["Petrification"] = 4; // La ficha no se podrá mover durante 4 turnos
+                            movimientosRestantes = 0; // Terminar los movimientos restantes por confusión
                             break;
 
                         case Maze.TRAP_TELEPORT:
                             Teleport(maze); // Teletransportar a una posición aleatoria válida
                             teletransportado = true; // Marcar que la ficha ha sido teletransportada
-                            Console.WriteLine($"{Name} ha sido teletransportada a una nueva posición.");
-                            break;
-
-                        default:
-                            Console.WriteLine($"{Name} se ha movido a una posición segura.");
+                            movimientosRestantes--; // Reducir un movimiento por teletransportación
                             break;
                     }
                 }
@@ -204,7 +191,6 @@ public class Ficha
         }
     }
 
-
     /// <summary>
     /// Teletransporta la ficha a una nueva posición válida aleatoria en el laberinto.
     /// </summary>
@@ -218,10 +204,9 @@ public class Ficha
         // Encontrar una posición válida aleatoria
         do
         {
-            // Genera nuevas coordenadas aleatorias dentro del laberinto
             newX = rand.Next(maze.GetLength(1));
             newY = rand.Next(maze.GetLength(0));
-        } while (maze[newY, newX] != Maze.PATH); // Repite hasta encontrar una celda que sea un camino
+        } while (!(newX >= 0 && newY >= 0 && newX < maze.GetLength(1) && newY < maze.GetLength(0) && maze[newY, newX] == Maze.PATH));
 
         // Actualizar la posición de la ficha
         X = newX;
@@ -229,14 +214,7 @@ public class Ficha
 
         // Marcar la ficha como recién teletransportada
         justTeleported = true;
-
-        // Imprimir un mensaje indicando la nueva posición de la ficha
-        Console.WriteLine($"{Name} ha sido teletransportado a una nueva posición válida ({X}, {Y}).");
     }
-
-
-
-
 
     /// <summary>
     /// Usa una habilidad de la ficha, aplicando sus efectos sobre los enemigos y el laberinto.
@@ -250,8 +228,6 @@ public class Ficha
     /// <param name="dificultad">La dificultad actual del laberinto.</param>
     public void UseHabilidad(string habilidad, List<Ficha> enemigos, Maze maze, Player currentPlayer, List<Ficha> propiasFichas, ref int movimientosRestantes, string dificultad)
     {
-        Console.WriteLine($"Usando habilidad {habilidad} de {Name}");
-
         // Verificar si la habilidad está disponible (no en enfriamiento)
         if (Cooldowns[habilidad] == 0)
         {
@@ -291,9 +267,9 @@ public class Ficha
                     break;
 
                 case "Don Aural":
-                    Duraciones["Don Aural"] = 3; // Lucario no será afectado por habilidades durante 3 turnos
+                    Duraciones["Don Aural"] = 5; // Lucario no será afectado por habilidades durante 5 turnos
                     Console.WriteLine($"{Name} ha usado {habilidad}. No será afectado por Ventisca, Lullaby ni Oversoul durante 3 turnos.");
-                    Cooldowns[habilidad] = 7; // Cooldown de 7 turnos
+                    Cooldowns[habilidad] = 9; // Cooldown de 8 turnos
                     break;
 
                 case "Teletransporte":
@@ -305,9 +281,6 @@ public class Ficha
                     maze.DisplayMaze(currentPlayer.Fichas, propiasFichas, currentPlayer.CurrentPlayerIndex, dificultad);
                     break;
 
-                default:
-                    Console.WriteLine("Habilidad desconocida.");
-                    break;
             }
         }
         else
@@ -335,31 +308,23 @@ public class Ficha
     /// <param name="cantidad">Cantidad de enemigos a dormir.</param>
     private void DormirEnemigosAleatorios(List<Ficha> enemigos, int cantidad)
     {
-        // Inicializa un nuevo generador de números aleatorios
         Random random = new Random();
-
-        // Lista para almacenar los enemigos seleccionados
         List<Ficha> seleccionados = new List<Ficha>();
 
-        // Seleccionar enemigos aleatorios hasta alcanzar la cantidad deseada o el número de enemigos disponibles
         while (seleccionados.Count < cantidad && seleccionados.Count < enemigos.Count)
         {
-            // Generar un índice aleatorio para seleccionar un enemigo
             int index = random.Next(enemigos.Count);
 
-            // Verificar si el enemigo ya ha sido seleccionado y si no es inmune
             if (!seleccionados.Contains(enemigos[index]) && !EsInmuneAFicha(enemigos[index]))
             {
-                // Añadir el enemigo a la lista de seleccionados
                 seleccionados.Add(enemigos[index]);
-
-                // Establecer la duración del efecto de Lullaby a 3 turnos
                 enemigos[index].Duraciones["Lullaby"] = 3; // Dormir enemigo por 3 turnos
                 Console.WriteLine($"{enemigos[index].Name} ha sido dormido por Lullaby durante 3 turnos.");
             }
-            else if (EsInmuneAFicha(enemigos[index]))
+            else if (EsInmuneAFicha(enemigos[index]) && !seleccionados.Contains(enemigos[index]))
             {
                 Console.WriteLine($"{enemigos[index].Name} es inmune a Lullaby debido a Don Aural.");
+                seleccionados.Add(enemigos[index]); // Añadir enemigo inmune a la lista de seleccionados
             }
         }
     }
@@ -387,7 +352,7 @@ public class Ficha
         Cooldowns["Oversoul"] = 5; // Establece el tiempo de recarga del método Oversoul en 5 turnos
     }
     /// <summary>
-    /// Aplica el efecto de la habilidad Ventisca a los enemigos, congelándolos por un turno.
+    /// Aplica el efecto de la habilidad Ventisca a los enemigos, congelándolos por un turno, ignorando aquel con la habilidad Don Aural.
     /// </summary>
     /// <param name="enemigos">Lista de fichas enemigas.</param>
     private void AplicarVentisca(List<Ficha> enemigos)
@@ -406,7 +371,7 @@ public class Ficha
 
             // Establece la duración del efecto "Ventisca" en 1 turno, congelando al enemigo
             enemigo.Duraciones["Ventisca"] = 1; // Congelar a los enemigos por 1 turno
-                                                // Imprime un mensaje indicando que el enemigo ha sido congelado
+             // Imprime un mensaje indicando que el enemigo ha sido congelado
             Console.WriteLine($"{enemigo.Name} ha sido congelado por Ventisca durante 1 turno.");
         }
 

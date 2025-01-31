@@ -45,9 +45,12 @@ namespace MazeRunners
         private MusicPlayer musicPlayer = new MusicPlayer();
 
         /// <summary>
-        /// Inicializa una nueva instancia de la clase Game.
+        /// Inicializa una nueva instancia de la clase Game llamando al metodo ShowMenu iniciando el programa.
         /// </summary>
-        public Game() { }
+        public Game()
+        {
+            ShowMenu();
+        }
 
 
         /// <summary>
@@ -112,7 +115,7 @@ namespace MazeRunners
             // Lista de fichas disponibles para la selección
             var availableFichas = new List<Ficha>
     {
-        new Ficha("Mega Beedrill", 1, 1, 5, "Agilidad"),
+        new Ficha("Beedrill", 1, 1, 5, "Agilidad"),
         new Ficha("Sandshrew", 1, 1, 2, "Ventisca"),
         new Ficha("Jigglypuff", 1, 1, 2, "Lullaby"),
         new Ficha("Gengar", 1, 1, 3, "Sombra Trampa"),
@@ -173,7 +176,7 @@ namespace MazeRunners
                 // Muestra el prompt para que el jugador seleccione una ficha
                 string selectedOption = AnsiConsole.Prompt(fichaPrompt);
 
-                // Encuentra la ficha seleccionada sin usar una expresión lambda
+                // Encuentra la ficha seleccionada 
                 Ficha selectedFicha = null;
                 foreach (var ficha in availableFichas)
                 {
@@ -200,7 +203,7 @@ namespace MazeRunners
         public void DisplayPlayerFichas(Player currentPlayer, int currentPlayerIndex)
         {
             // Crear una nueva tabla para mostrar las fichas
-            var table = new Table();
+            Table table = new Table();
 
             // Configurar el color de la tabla según el jugador actual
             if (currentPlayerIndex == 1)
@@ -232,10 +235,9 @@ namespace MazeRunners
                 // Determinar el color de la fila basado en las duraciones de las trampas
                 if ((ficha.Duraciones.ContainsKey("Lullaby") && ficha.Duraciones["Lullaby"] > 0) ||
                     (ficha.Duraciones.ContainsKey("Ventisca") && ficha.Duraciones["Ventisca"] > 0) ||
-                    (ficha.Duraciones.ContainsKey("Petrification") && ficha.Duraciones["Petrification"] > 0) ||
-                    (ficha.Duraciones.ContainsKey("Confusion") && ficha.Duraciones["Confusion"] > 0)) // Añadir Confusion
+                    (ficha.Duraciones.ContainsKey("Petrification") && ficha.Duraciones["Petrification"] > 0))
                 {
-                    rowColor = "red"; // Color rojo para las fichas afectadas por trampas
+                    rowColor = "red"; // Color rojo para las fichas afectadas por una habilidad o trampa de duracion
                 }
 
                 // Colores para la posición
@@ -261,7 +263,6 @@ namespace MazeRunners
             AnsiConsole.Render(table);
         }
 
-
         /// <summary>
         /// Inicia el juego y gestiona los turnos de los jugadores.
         /// </summary>
@@ -277,20 +278,20 @@ namespace MazeRunners
             switch (dificultad)
             {
                 case "Tutorial":
-                    Maze = new Maze(8, 8); // Tamaño 8x8 para el tutorial
+                    Maze = new Maze(8, 8); 
                     Maze.InitializeTutorialMaze(); // Inicializar el laberinto del tutorial
                     break;
 
                 case "Normal":
-                    Maze = new Maze(15, 15); // Tamaño 15x15 para el modo normal
+                    Maze = new Maze(15, 15); 
                     Maze.GenerateMaze(); // Generar el laberinto
                     Maze.PlaceRandomObstaclesAndTraps(9); // Colocar trampas aleatorias
                     break;
 
                 case "Pesadilla":
-                    Maze = new Maze(30, 30); // Tamaño 30x30 para el modo pesadilla
+                    Maze = new Maze(30, 30); 
                     Maze.GenerateMaze(); // Generar el laberinto
-                    Maze.PlaceRandomObstaclesAndTraps(30); // Colocar muchas trampas aleatorias
+                    Maze.PlaceRandomObstaclesAndTraps(30); // Colocar trampas aleatorias
                     break;
             }
 
@@ -343,7 +344,6 @@ namespace MazeRunners
             musicPlayer.StopMusic();
         }
 
-
         /// <summary>
         /// Inicializa los enfriamientos de las habilidades predefinidas de una lista de fichas.
         /// </summary>
@@ -357,7 +357,6 @@ namespace MazeRunners
                 ficha.Cooldowns[ficha.HabilidadPredefinida] = 0;
             }
         }
-
 
         /// <summary>
         /// Muestra un mensaje de victoria al jugador ganador.
@@ -376,25 +375,23 @@ namespace MazeRunners
                 Padding = new Padding(1, 1) // Espaciado interno del panel
             };
 
-            // Mostrar el panel en la consola
+            
             AnsiConsole.Write(panel);
 
-            // Mostrar un mensaje adicional de felicitación
             AnsiConsole.MarkupLine($"[bold underline green]Muchas felicidades {nombreJugador}, acabas de convertirte en el mejor corredor del laberinto![/]");
 
-            // Mostrar un mensaje indicando que el juego ha terminado
             AnsiConsole.Markup("[bold red]Presiona cualquier tecla para salir...[/]");
 
-            // Esperar a que el usuario presione una tecla antes de continuar
             Console.ReadKey(true);
 
             // Terminar el juego
             Environment.Exit(0);
         }
+
         /// <summary>
         /// Cambia el turno entre jugadores, actualizando enfriamientos y verificando si un jugador puede mover sus fichas.
         /// </summary>
-        /// <param name="dificultad">La dificultad del laberinto.</param>
+        /// <param name="dificultad">La dificultad del laberinto.</param>       
         public void CambiarTurno(string dificultad)
         {
             // Llamar a ActualizarCooldowns para el jugador actual
@@ -422,12 +419,10 @@ namespace MazeRunners
             // Saltar turno del jugador si todas las fichas están dormidas, congeladas o petrificadas
             if (todasFichasInmoviles)
             {
-                Console.WriteLine($"Todas las fichas de {currentPlayer.Name} están dormidas, congeladas o petrificadas. Se salta su turno.");
                 CambiarTurno(dificultad);
                 return;
             }
 
-            AnsiConsole.Markup($"[bold blue]Turno de {currentPlayer.Name}.[/]");
 
             // Llamar a DisplayMaze con el índice del jugador actual y la dificultad
             Maze.DisplayMaze(Player1.Fichas, Player2.Fichas, currentPlayerIndex, dificultad);
@@ -465,8 +460,6 @@ namespace MazeRunners
             currentPlayer.MoveFicha(fichaIndex, Maze.maze, Maze, Player1.Fichas, Player2.Fichas, this, dificultad);
         }
 
-
-
         /// <summary>
         /// Continúa el turno del jugador actual después de una extensión del turno.
         /// </summary>
@@ -474,8 +467,6 @@ namespace MazeRunners
         /// <param name="dificultad">La dificultad del laberinto.</param>
         public void ContinueTurn(Player currentPlayer, string dificultad)
         {
-            // Mostrar un mensaje indicando que el turno del jugador ha sido extendido
-            AnsiConsole.Markup($"[bold blue]Turno extendido de {currentPlayer.Name}.[/]");
 
             // Pasar el índice del jugador actual a DisplayMaze
             Maze.DisplayMaze(Player1.Fichas, Player2.Fichas, currentPlayerIndex, dificultad);
@@ -490,9 +481,6 @@ namespace MazeRunners
             // Actualizar los enfriamientos de las habilidades del jugador actual
             currentPlayer.ActualizarCooldowns();
         }
-
-
-
     }
 
 
