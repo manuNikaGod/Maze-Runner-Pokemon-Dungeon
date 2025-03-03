@@ -63,8 +63,8 @@ public class Player
     /// <param name="maze">El laberinto en el que se mueve la ficha.</param>
     /// <param name="mazeInstance">Instancia del laberinto para actualizar la visualización.</param>
     /// <param name="player1Fichas">Lista de fichas del Jugador 1.</param>
-    /// <param="player2Fichas">Lista de fichas del Jugador 2.</param>
-    /// <param="game">Instancia del juego para controlar el flujo del turno y la victoria.</param>
+    /// <param name="player2Fichas">Lista de fichas del Jugador 2.</param>
+    /// <param name="game">Instancia del juego para controlar el flujo del turno y la victoria.</param>
     /// <param name="dificultad">La dificultad del laberinto.</param>
     public void MoveFicha(int fichaIndex, int[,] maze, Maze mazeInstance, List<Ficha> player1Fichas, List<Ficha> player2Fichas, Game game, string dificultad)
     {

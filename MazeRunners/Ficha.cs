@@ -204,8 +204,8 @@ public class Ficha
         // Encontrar una posición válida aleatoria
         do
         {
-            newX = rand.Next(maze.GetLength(1));
-            newY = rand.Next(maze.GetLength(0));
+            newX = rand.Next(maze.GetLength(0));
+            newY = rand.Next(maze.GetLength(1));
         } while (!(newX >= 0 && newY >= 0 && newX < maze.GetLength(1) && newY < maze.GetLength(0) && maze[newY, newX] == Maze.PATH));
 
         // Actualizar la posición de la ficha
@@ -235,7 +235,6 @@ public class Ficha
             {
                 case "Agilidad":
                     movimientosRestantes += 3; // Aumentar movimientos restantes en 3
-                    Console.WriteLine($"{Name} ha usado {habilidad}. Los movimientos restantes se han aumentado a {movimientosRestantes}.");
                     Cooldowns[habilidad] = 6; // Cooldown de 6 turnos
                     break;
 
