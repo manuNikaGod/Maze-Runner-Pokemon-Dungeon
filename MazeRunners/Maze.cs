@@ -138,8 +138,6 @@ public class Maze
     /// <param name="exit">La coordenada de la salida del laberinto.</param>
     private void PlaceRandomObstaclesAndTraps(int count, (int y, int x) exit)
     {
-        // Inicializa un nuevo generador de números aleatorios
-        Random rand = new Random();
 
         // Lista para almacenar las posiciones libres donde se pueden colocar trampas
         List<(int, int)> posicionesLibres = new List<(int, int)>();
@@ -176,7 +174,7 @@ public class Maze
                     index = rand.Next(posicionesLibres.Count);
                     posicion = posicionesLibres[index];
                 } while ((posicion == entrada || posicion == salida) ||
-                         (posicion == (entrada.y + 1, entrada.x)) || // Ajustado a (entrada.y + 1, entrada.x)
+                         (posicion == (entrada.y + 1, entrada.x)) || 
                          (posicion == (salida.x - 1, salida.y)) ||
                          (posicion == (salida.x + 1, salida.y)));
 

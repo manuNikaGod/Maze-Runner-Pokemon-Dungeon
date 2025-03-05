@@ -200,6 +200,7 @@ namespace MazeRunners
         /// </summary>
         /// <param name="currentPlayer">El jugador cuyas fichas se van a mostrar.</param>
         /// <param name="currentPlayerIndex">Índice del jugador actual.</param>
+        
         public void DisplayPlayerFichas(Player currentPlayer, int currentPlayerIndex)
         {
             // Crear una nueva tabla para mostrar las fichas
