@@ -163,7 +163,7 @@ public class Player
                                   (maze[newY, newX] == Maze.PATH || maze[newY, newX] == Maze.TRAP_SLOW || maze[newY, newX] == Maze.TRAP_CONFUSION || maze[newY, newX] == Maze.TRAP_TELEPORT);
             if(posicionValida)
             {
-                // Verificar si la ficha ha llegado a la meta ANTES de moverla
+                // Verificar si la ficha ha llegado a la meta antes de moverla
                 if (newX == maze.GetLength(1) - 2 && newY == maze.GetLength(0) - 2)
                 {
                     Console.WriteLine("¡Ficha ha llegado a la meta!");
@@ -179,15 +179,15 @@ public class Player
 
                 ficha.Move(deltaX, deltaY, maze, ref teletransportado, ref movimientosRestantes);
 
-                // Verificar si la ficha ha sido teletransportada
-                if (teletransportado)
-                {
-                    teletransportado = false;
-                    // Actualizar la visualización del laberinto
-                    AnsiConsole.Clear();
-                    mazeInstance.DisplayMaze(player1Fichas, player2Fichas, game.currentPlayerIndex, dificultad);
-                    continue; // Continuar el bucle para el próximo movimiento sin disminuir más movimientosRestantes
-                }
+                //// Verificar si la ficha ha sido teletransportada
+                //if (teletransportado)
+                //{
+                //    teletransportado = false;
+                //    // Actualizar la visualización del laberinto
+                //    AnsiConsole.Clear();
+                //    mazeInstance.DisplayMaze(player1Fichas, player2Fichas, game.currentPlayerIndex, dificultad);
+                //    continue; // Continuar el bucle para el próximo movimiento sin disminuir más movimientosRestantes
+                //}
 
                 movimientosRestantes--; // Reducir movimientos restantes por movimiento regular
                 Console.WriteLine($"Movimientos restantes: {movimientosRestantes}");

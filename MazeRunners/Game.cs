@@ -49,7 +49,6 @@ namespace MazeRunners
         /// </summary>
         public Game()
         {
-            ShowMenu();
         }
 
 

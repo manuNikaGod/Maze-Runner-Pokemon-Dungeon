@@ -90,11 +90,11 @@ public class Maze
         }
 
         // Punto de inicio del laberinto
-        var startX = 1;
-        var startY = 1;
+        int startX = 1;
+        int startY = 1;
         maze[startY, startX] = PATH; // Marca el punto de inicio como camino
 
-        var frontier = new List<(int x, int y)>();
+        List<(int x, int y)> frontier = new List<(int x, int y)>();
         AddFrontier(startX, startY, frontier); // Añade las fronteras iniciales
 
         // Algoritmo de generación de laberinto
@@ -508,7 +508,7 @@ public class Maze
                                 case TRAP_SLOW:
                                 case TRAP_CONFUSION:
                                 case TRAP_TELEPORT:
-                                    sb.Append("[green]▒▒[/]"); // Mostrar las trampas como el camino
+                                    sb.Append("[green]▒▒[/]"); 
                                     break;
                             }
                         }
@@ -525,7 +525,7 @@ public class Maze
                                 case TRAP_SLOW:
                                 case TRAP_CONFUSION:
                                 case TRAP_TELEPORT:
-                                    sb.Append("[purple]▒▒[/]"); // Mostrar las trampas como el camino
+                                    sb.Append("[purple]▒▒[/]"); 
                                     break;
                             }
                         }

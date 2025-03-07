@@ -12,6 +12,8 @@ namespace MazeRunners
         public static void Main()
         {
             Game game = new Game();
+            
+            game.ShowMenu();
 
             Console.Read();
         }
